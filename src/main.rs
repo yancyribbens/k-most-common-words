@@ -19,17 +19,7 @@ std::collections::HashMap<String, u8> {
             .replace(|c: char| !c.is_ascii_alphabetic(), "")
             .to_lowercase();
 
-        let count = word_table.get(&current_word);
-
-        match count {
-            Some(c) => {
-                let new_count = c + 1;
-                word_table.insert(current_word, new_count);
-            },
-            None => {
-                word_table.insert(current_word, 1);
-            }
-        }
+        *word_table.entry(current_word).or_insert(0) += 1;
     }
 
     word_table
