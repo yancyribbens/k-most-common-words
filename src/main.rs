@@ -19,7 +19,9 @@ std::collections::HashMap<String, u8> {
             .replace(|c: char| !c.is_ascii_alphabetic(), "")
             .to_lowercase();
 
-        *word_table.entry(current_word).or_insert(0) += 1;
+        if current_word != "" {
+            *word_table.entry(current_word).or_insert(0) += 1;
+        }
     }
 
     word_table
@@ -62,6 +64,9 @@ mod tests {
 
         let count = word_table.get("nobody").unwrap();
         assert_eq!(*count, 2 as u8);
+
+        let count = word_table.get("");
+        assert_eq!(None, count);
     }
 
     #[test]
