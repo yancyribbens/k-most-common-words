@@ -6,8 +6,19 @@
 
 use std::collections::HashMap;
 
-fn find_most_common_words(k: u8, words: String) -> String {
-    String::from("to")
+fn find_most_common_words(
+    k: u8,
+    word_table: std::collections::HashMap<String, u8>,
+    mut results: Vec<String>) -> Vec<String> {
+
+        let mut counts: Vec<(&String, &u8)> = word_table.iter().collect();
+        counts.sort_by(|a, b| b.1.cmp(a.1));
+
+        for k in 0..k {
+            results.push(counts[0].0.to_string());
+        }
+
+        results
 }
 
 fn build_word_table(words: String, mut word_table: std::collections::HashMap<String, u8>) -> 
@@ -71,7 +82,13 @@ mod tests {
 
     #[test]
     fn find_most_common_word() {
-        let most_common_word = find_most_common_words(1, quote());
-        assert_eq!(most_common_word, "to".to_string());
+        let mut word_table = HashMap::new();
+        let mut results = Vec::new();
+
+        let word_table = build_word_table(quote(), word_table);
+        let word = find_most_common_words(1, word_table, results);
+
+        assert_eq!(word.len(), 1);
+        //assert_eq!("to", word[0]);
     }
 }
