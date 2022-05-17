@@ -12,15 +12,16 @@ fn find_most_common_words(k: u8, words: String) -> String {
 
 fn build_word_table(words: String, mut word_table: std::collections::HashMap<String, u8>) -> 
 std::collections::HashMap<String, u8> {
-    let w = words.split_whitespace();
+    let lower_case = words.to_lowercase();
+    let word_split = lower_case.split_whitespace();
 
-    for word in w {
-        let current_word: String = word
-            .replace(|c: char| !c.is_ascii_alphabetic(), "")
-            .to_lowercase();
+    for word in word_split {
+        let mut chars = word.chars().collect::<Vec<_>>();
+        chars.retain(|c| c.is_ascii_alphabetic());
 
-        if current_word != "" {
-            *word_table.entry(current_word).or_insert(0) += 1;
+        if !chars.is_empty() {
+            let current_word:String = chars.into_iter().collect();
+            *word_table.entry(current_word.to_string()).or_insert(0) += 1;
         }
     }
 
