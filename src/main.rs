@@ -6,22 +6,28 @@
 
 use std::collections::HashMap;
 
-fn find_most_common_words(
-    k: u8,
-    word_table: std::collections::HashMap<String, u8>,
-    mut results: Vec<String>) -> Vec<String> {
+fn build_sorted_vec(word_table: HashMap<String, u8>, word_vec: &mut Vec<String>) {
+    let mut sort_word_vec = word_table
+        .iter()
+        .collect::<Vec<(&String, &u8)>>();
 
-        let mut counts: Vec<(&String, &u8)> = word_table.iter().collect();
-        counts.sort_by(|a, b| b.1.cmp(a.1));
+    sort_word_vec.sort_by(|a, b| b.1.cmp(a.1));
 
-        for k in 0..k {
-            results.push(counts[0].0.to_string());
-        }
-
-        results
+    for word in sort_word_vec {
+        word_vec.push(word.0.to_string());
+    }
 }
 
-fn build_word_table(words: String, mut word_table: std::collections::HashMap<String, u8>) -> 
+//fn find_most_common_words(k: u8, mut results: Vec<(String, u8)>) -> Vec<String> {
+    //for
+        //for k in 0..k {
+            //results.push(word_vec[0].0.to_string());
+        //}
+
+        //results
+//}
+
+fn build_word_table(words: String, mut word_table: HashMap<String, u8>) -> 
 std::collections::HashMap<String, u8> {
     let w = words.split_whitespace();
 
@@ -45,6 +51,14 @@ fn main() {
 #[cfg(test)]
 mod tests {
     use crate::*;
+		use std::ops::Range;
+
+		fn assert_word_sort(j: Range<usize>, expected_occurence: Vec<&str>, sorted_vec: &Vec<String>) {
+        let mut occurence = Vec::new();
+        for i in j { occurence.push(&sorted_vec[i]); }
+        occurence.sort();
+        assert_eq!(expected_occurence, occurence);
+		}
 
     fn quote() -> String {
         String::from(r#"I'm Nobody! Who are you?
@@ -61,7 +75,7 @@ mod tests {
 
     #[test]
     fn build_word_table_test() {
-        let mut word_table = HashMap::new();
+        let word_table = HashMap::new();
         let word_table = build_word_table(quote(), word_table);
 
         let count = word_table.get("im").unwrap();
@@ -81,14 +95,45 @@ mod tests {
     }
 
     #[test]
-    fn find_most_common_word() {
-        let mut word_table = HashMap::new();
-        let mut results = Vec::new();
+    fn build_sorted_vec_test() {
+        let expected_occurence_three = vec!["to", "you"];
+        let expected_occurence_two = vec!["a", "are", "how", "nobody", "tell"];
+        let expected_occurence_one = vec![
+						"admiring",
+						"advertise",
+						"an",
+						"be",
+						"bog",
+						"dont",
+						"dreary",
+						"frog",
+						"im",
+						"june",
+						"know",
+						"like",
+						"livelong",
+						"name",
+						"of",
+						"ones",
+						"pair",
+						"public",
+						"somebody",
+						"the",
+						"then",
+						"theres",
+						"theyd",
+						"too",
+						"us",
+						"who",
+        ];
 
+        let word_table = HashMap::new();
+        let mut sorted_vec = Vec::new();
         let word_table = build_word_table(quote(), word_table);
-        let word = find_most_common_words(1, word_table, results);
+        build_sorted_vec(word_table, &mut sorted_vec);
 
-        assert_eq!(word.len(), 1);
-        //assert_eq!("to", word[0]);
+				assert_word_sort(0..2, expected_occurence_three, &sorted_vec);
+				assert_word_sort(2..7, expected_occurence_two, &sorted_vec);
+				assert_word_sort(7..33, expected_occurence_one, &sorted_vec);
     }
 }
