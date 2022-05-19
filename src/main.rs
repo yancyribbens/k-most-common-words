@@ -6,7 +6,7 @@
 
 use std::collections::HashMap;
 
-fn build_sorted_vec(word_table: HashMap<String, u8>, word_vec: &mut Vec<String>) {
+fn build_sorted_vec(word_table: HashMap<String, u8>, word_vec: &mut Vec<(String, u8)>) {
     let mut sort_word_vec = word_table
         .iter()
         .collect::<Vec<(&String, &u8)>>();
@@ -14,7 +14,7 @@ fn build_sorted_vec(word_table: HashMap<String, u8>, word_vec: &mut Vec<String>)
     sort_word_vec.sort_by(|a, b| b.1.cmp(a.1));
 
     for word in sort_word_vec {
-        word_vec.push(word.0.to_string());
+        word_vec.push((word.0.to_string(), *word.1));
     }
 }
 
@@ -44,11 +44,17 @@ mod tests {
     use crate::*;
     use std::ops::Range;
 
-    fn assert_word_sort(j: Range<usize>, expected_occurence: Vec<&str>, sorted_vec: &Vec<String>) {
+    fn assert_word_sort(j: Range<usize>, expected_occurence: Vec<(&str, u8)>, sorted_vec: &Vec<(String, u8)>) {
         let mut occurence = Vec::new();
-        for i in j { occurence.push(&sorted_vec[i]); }
+        for i in j { 
+          occurence.push(&sorted_vec[i]); 
+        }
         occurence.sort();
-        assert_eq!(expected_occurence, occurence);
+
+        for i in 0..expected_occurence.len() {
+          assert_eq!(expected_occurence[i].0, occurence[i].0);
+          assert_eq!(expected_occurence[i].1, occurence[i].1);
+        }
     }
 
     fn quote() -> String {
@@ -87,35 +93,35 @@ mod tests {
 
     #[test]
     fn build_sorted_vec_test() {
-        let expected_occurence_three = vec!["to", "you"];
-        let expected_occurence_two = vec!["a", "are", "how", "nobody", "tell"];
+        let expected_occurence_three = vec![("to", 3), ("you", 3)];
+        let expected_occurence_two = vec![("a", 2), ("are", 2), ("how", 2), ("nobody", 2), ("tell", 2)];
         let expected_occurence_one = vec![
-          "admiring",
-          "advertise",
-          "an",
-          "be",
-          "bog",
-          "dont",
-          "dreary",
-          "frog",
-          "im",
-          "june",
-          "know",
-          "like",
-          "livelong",
-          "name",
-          "of",
-          "ones",
-          "pair",
-          "public",
-          "somebody",
-          "the",
-          "then",
-          "theres",
-          "theyd",
-          "too",
-          "us",
-          "who",
+          ("admiring", 1),
+          ("advertise", 1),
+          ("an", 1),
+          ("be", 1),
+          ("bog", 1),
+          ("dont", 1),
+          ("dreary", 1),
+          ("frog", 1),
+          ("im", 1),
+          ("june", 1),
+          ("know", 1),
+          ("like", 1),
+          ("livelong", 1),
+          ("name", 1),
+          ("of", 1),
+          ("ones", 1),
+          ("pair", 1),
+          ("public", 1),
+          ("somebody", 1),
+          ("the", 1),
+          ("then", 1),
+          ("theres", 1),
+          ("theyd", 1),
+          ("too", 1),
+          ("us", 1),
+          ("who", 1),
         ];
 
         let word_table = HashMap::new();
