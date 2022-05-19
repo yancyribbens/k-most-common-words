@@ -18,15 +18,6 @@ fn build_sorted_vec(word_table: HashMap<String, u8>, word_vec: &mut Vec<String>)
     }
 }
 
-//fn find_most_common_words(k: u8, mut results: Vec<(String, u8)>) -> Vec<String> {
-    //for
-        //for k in 0..k {
-            //results.push(word_vec[0].0.to_string());
-        //}
-
-        //results
-//}
-
 fn build_word_table(words: String, mut word_table: HashMap<String, u8>) -> 
 std::collections::HashMap<String, u8> {
     let w = words.split_whitespace();
@@ -51,14 +42,14 @@ fn main() {
 #[cfg(test)]
 mod tests {
     use crate::*;
-		use std::ops::Range;
+    use std::ops::Range;
 
-		fn assert_word_sort(j: Range<usize>, expected_occurence: Vec<&str>, sorted_vec: &Vec<String>) {
+    fn assert_word_sort(j: Range<usize>, expected_occurence: Vec<&str>, sorted_vec: &Vec<String>) {
         let mut occurence = Vec::new();
         for i in j { occurence.push(&sorted_vec[i]); }
         occurence.sort();
         assert_eq!(expected_occurence, occurence);
-		}
+    }
 
     fn quote() -> String {
         String::from(r#"I'm Nobody! Who are you?
@@ -99,32 +90,32 @@ mod tests {
         let expected_occurence_three = vec!["to", "you"];
         let expected_occurence_two = vec!["a", "are", "how", "nobody", "tell"];
         let expected_occurence_one = vec![
-						"admiring",
-						"advertise",
-						"an",
-						"be",
-						"bog",
-						"dont",
-						"dreary",
-						"frog",
-						"im",
-						"june",
-						"know",
-						"like",
-						"livelong",
-						"name",
-						"of",
-						"ones",
-						"pair",
-						"public",
-						"somebody",
-						"the",
-						"then",
-						"theres",
-						"theyd",
-						"too",
-						"us",
-						"who",
+          "admiring",
+          "advertise",
+          "an",
+          "be",
+          "bog",
+          "dont",
+          "dreary",
+          "frog",
+          "im",
+          "june",
+          "know",
+          "like",
+          "livelong",
+          "name",
+          "of",
+          "ones",
+          "pair",
+          "public",
+          "somebody",
+          "the",
+          "then",
+          "theres",
+          "theyd",
+          "too",
+          "us",
+          "who",
         ];
 
         let word_table = HashMap::new();
@@ -132,8 +123,8 @@ mod tests {
         let word_table = build_word_table(quote(), word_table);
         build_sorted_vec(word_table, &mut sorted_vec);
 
-				assert_word_sort(0..2, expected_occurence_three, &sorted_vec);
-				assert_word_sort(2..7, expected_occurence_two, &sorted_vec);
-				assert_word_sort(7..33, expected_occurence_one, &sorted_vec);
+        assert_word_sort(0..2, expected_occurence_three, &sorted_vec);
+        assert_word_sort(2..7, expected_occurence_two, &sorted_vec);
+        assert_word_sort(7..33, expected_occurence_one, &sorted_vec);
     }
 }
