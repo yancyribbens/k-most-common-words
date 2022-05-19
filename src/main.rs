@@ -6,16 +6,38 @@
 
 use std::collections::HashMap;
 
-fn build_sorted_vec(word_table: HashMap<String, u8>, word_vec: &mut Vec<(String, u8)>) {
+use core::cmp::Ordering;
+use std::cmp::Reverse;
+
+#[derive(Debug, Eq, PartialEq, Ord)]
+struct WordCount {
+    word: String,
+    count: u8,
+}
+
+impl PartialOrd for WordCount {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        if self.count == other.count {
+            return Some(self.word.cmp(&other.word));
+        }
+        Some(self.count.cmp(&other.count))
+    }
+}
+
+fn build_sorted_vec(word_table: HashMap<String, u8>, word_vec: &mut Vec<WordCount>) {
     let mut sort_word_vec = word_table
         .iter()
         .collect::<Vec<(&String, &u8)>>();
 
-    sort_word_vec.sort_by(|a, b| b.1.cmp(a.1));
-
-    for word in sort_word_vec {
-        word_vec.push((word.0.to_string(), *word.1));
+    for w in sort_word_vec {
+      let word_count = WordCount {
+        word: w.0.to_string(),
+        count: *w.1
+      };
+      word_vec.push(word_count);
     }
+
+    word_vec.sort_unstable_by_key(|item| (Reverse(item.count), item.word.clone()))
 }
 
 fn build_word_table(words: String, mut word_table: HashMap<String, u8>) -> 
@@ -43,19 +65,6 @@ fn main() {
 mod tests {
     use crate::*;
     use std::ops::Range;
-
-    fn assert_word_sort(j: Range<usize>, expected_occurence: Vec<(&str, u8)>, sorted_vec: &Vec<(String, u8)>) {
-        let mut occurence = Vec::new();
-        for i in j { 
-          occurence.push(&sorted_vec[i]); 
-        }
-        occurence.sort();
-
-        for i in 0..expected_occurence.len() {
-          assert_eq!(expected_occurence[i].0, occurence[i].0);
-          assert_eq!(expected_occurence[i].1, occurence[i].1);
-        }
-    }
 
     fn quote() -> String {
         String::from(r#"I'm Nobody! Who are you?
@@ -93,35 +102,139 @@ mod tests {
 
     #[test]
     fn build_sorted_vec_test() {
-        let expected_occurence_three = vec![("to", 3), ("you", 3)];
-        let expected_occurence_two = vec![("a", 2), ("are", 2), ("how", 2), ("nobody", 2), ("tell", 2)];
-        let expected_occurence_one = vec![
-          ("admiring", 1),
-          ("advertise", 1),
-          ("an", 1),
-          ("be", 1),
-          ("bog", 1),
-          ("dont", 1),
-          ("dreary", 1),
-          ("frog", 1),
-          ("im", 1),
-          ("june", 1),
-          ("know", 1),
-          ("like", 1),
-          ("livelong", 1),
-          ("name", 1),
-          ("of", 1),
-          ("ones", 1),
-          ("pair", 1),
-          ("public", 1),
-          ("somebody", 1),
-          ("the", 1),
-          ("then", 1),
-          ("theres", 1),
-          ("theyd", 1),
-          ("too", 1),
-          ("us", 1),
-          ("who", 1),
+        let expected_occurence = vec![
+            WordCount {
+                word: "to".to_string(),
+                count: 3
+            },
+            WordCount {
+                word: "you".to_string(),
+                count: 3,
+            },
+            WordCount {
+                word: "a".to_string(),
+                count: 2,
+            },
+            WordCount {
+                word: "are".to_string(),
+                count: 2,
+            },
+            WordCount {
+                word: "how".to_string(),
+                count: 2,
+            },
+            WordCount {
+                word: "nobody".to_string(),
+                count: 2,
+            },
+            WordCount {
+                word: "tell".to_string(),
+                count: 2,
+            },
+            WordCount {
+                word: "admiring".to_string(),
+                count: 1,
+            },
+            WordCount {
+                word: "advertise".to_string(),
+                count: 1,
+            },
+            WordCount {
+                word: "an".to_string(),
+                count: 1,
+            },
+            WordCount {
+                word: "be".to_string(),
+                count: 1,
+            },
+            WordCount {
+                word: "bog".to_string(),
+                count: 1,
+            },
+            WordCount {
+                word: "dont".to_string(),
+                count: 1,
+            },
+            WordCount {
+                word: "dreary".to_string(),
+                count: 1,
+            },
+            WordCount {
+                word: "frog".to_string(),
+                count: 1,
+            },
+            WordCount {
+                word: "im".to_string(),
+                count: 1,
+            },
+            WordCount {
+                word: "june".to_string(),
+                count: 1,
+            },
+            WordCount {
+                word: "know".to_string(),
+                count: 1,
+            },
+            WordCount {
+                word: "like".to_string(),
+                count: 1,
+            },
+            WordCount {
+                word: "livelong".to_string(),
+                count: 1,
+            },
+            WordCount {
+                word: "name".to_string(),
+                count: 1,
+            },
+            WordCount {
+                word: "of".to_string(),
+                count: 1,
+            },
+            WordCount {
+                word: "ones".to_string(),
+                count: 1,
+            },
+            WordCount {
+                word: "pair".to_string(),
+                count: 1,
+            },
+            WordCount {
+                word: "public".to_string(),
+                count: 1,
+            },
+            WordCount {
+                word: "somebody".to_string(),
+                count: 1,
+            },
+            WordCount {
+                word: "the".to_string(),
+                count: 1,
+            },
+            WordCount {
+                word: "then".to_string(),
+                count: 1,
+            },
+            WordCount {
+                word: "theres".to_string(),
+                count: 1,
+            },
+            WordCount {
+                word: "theyd".to_string(),
+                count: 1,
+            },
+            WordCount {
+                word: "too".to_string(),
+                count: 1,
+            },
+            WordCount {
+                word: "us".to_string(),
+                count: 1,
+            },
+            WordCount {
+                word: "who".to_string(),
+                count: 1,
+            }
         ];
 
         let word_table = HashMap::new();
@@ -129,8 +242,8 @@ mod tests {
         let word_table = build_word_table(quote(), word_table);
         build_sorted_vec(word_table, &mut sorted_vec);
 
-        assert_word_sort(0..2, expected_occurence_three, &sorted_vec);
-        assert_word_sort(2..7, expected_occurence_two, &sorted_vec);
-        assert_word_sort(7..33, expected_occurence_one, &sorted_vec);
+        for i in 0..expected_occurence.len() {
+            assert_eq!(expected_occurence[i], sorted_vec[i]);
+        }
     }
 }
