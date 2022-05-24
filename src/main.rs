@@ -10,32 +10,44 @@ use core::cmp::Ordering;
 use std::cmp::Reverse;
 
 #[derive(Debug, Eq, PartialEq, Ord)]
-struct WordMeta {
+struct WordCount {
     word: String,
     count: u8,
 }
 
-struct Words {
-    words: Vec<WordMeta>
+struct Corpus {
+    words: Vec<WordCount>
 }
 
-impl Words {
-    fn new(word_table: HashMap<String, u8>) -> Self {
-        let mut words: Vec<WordMeta> = Vec::new();
+impl WordCount {
+    fn increment_counter(&mut self) {
+        self.count += 1;
+    }
+}
 
-        let mut words_vec = word_table
-            .iter()
-            .collect::<Vec<(&String, &u8)>>();
+impl Corpus {
+    fn build_table(table: &mut HashMap<String, WordCount>, words: String) {
+        for w in words.split_whitespace() {
+            let current: String = w
+                .replace(|c: char| !c.is_ascii_alphabetic(), "")
+                .to_lowercase();
 
-        for w in words_vec {
-          let word_meta = WordMeta {
-            word: w.0.to_string(),
-            count: *w.1
-          };
+            let word_meta = WordCount {
+                word: current.clone(),
+                count: 0
+            };
 
-          words.push(word_meta);
+            let entry = table.entry(current).or_insert(word_meta);
+            entry.increment_counter();
         }
 
+        table.retain(|k, _| k != "");
+    }
+
+    fn new(words: String) -> Self {
+        let mut table = HashMap::new();
+        Self::build_table(&mut table, words);
+        let mut words: Vec<WordCount> = table.into_values().collect();
         Self { words }
     }
 
@@ -59,30 +71,13 @@ impl Words {
     }
 }
 
-impl PartialOrd for WordMeta {
+impl PartialOrd for WordCount {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         if self.count == other.count {
             return Some(self.word.cmp(&other.word));
         }
         Some(self.count.cmp(&other.count))
     }
-}
-
-fn build_word_table(words: String, mut word_table: HashMap<String, u8>) -> 
-std::collections::HashMap<String, u8> {
-    let w = words.split_whitespace();
-
-    for word in w {
-        let current_word: String = word
-            .replace(|c: char| !c.is_ascii_alphabetic(), "")
-            .to_lowercase();
-
-        if current_word != "" {
-            *word_table.entry(current_word).or_insert(0) += 1;
-        }
-    }
-
-    word_table
 }
 
 fn main() {
@@ -157,75 +152,74 @@ mod tests {
 
     #[test]
     fn build_word_table_test() {
-        let word_table = HashMap::new();
-        let word_table = build_word_table(quote(), word_table);
+        let mut table = HashMap::new();
 
-        for w in word_count_three() {
-            let count = word_table.get(w).unwrap();
-            assert_eq!(*count, 3 as u8);
+        Corpus::build_table(&mut table, quote());
+        for word in word_count_three() {
+            let count = table.get(word).unwrap();
+            let expected_word_count = WordCount {
+                word: String::from(word), count: 3 as u8 
+            };
+            assert_eq!(*count, expected_word_count);
         }
 
-        for w in word_count_two() {
-            let count = word_table.get(w).unwrap();
-            assert_eq!(*count, 2 as u8);
+        for word in word_count_two() {
+            let count = table.get(word).unwrap();
+            let expected_word_count = WordCount {
+                word: String::from(word), count: 2 as u8
+            };
+            assert_eq!(*count, expected_word_count);
         }
 
-        for w in word_count_one() {
-            let count = word_table.get(w).unwrap();
-            assert_eq!(*count, 1 as u8);
+        for word in word_count_one() {
+            let count = table.get(word).unwrap();
+            let expected_word_count = WordCount {
+                word: String::from(word), count: 1 as u8 };
+            assert_eq!(*count, expected_word_count);
         }
 
-        let count = word_table.get("");
+        let count = table.get("");
         assert_eq!(None, count);
     }
 
     #[test]
     fn sort_word_list_test() {
-        let word_table = HashMap::new();
-        let word_table = build_word_table(quote(), word_table);
-        let mut words = Words::new(word_table);
-        words.sort();
-        
+        let mut corpus = Corpus::new(quote());
+        corpus.sort();
+
         let mut expected = Vec::new();
-
-        for w in word_count_three() {
-            let word_meta = WordMeta { word: w.to_string(), count: 3 };
-            expected.push(word_meta);
+        for word in word_count_three() {
+            let word_count = WordCount { word: word.to_string(), count: 3 };
+            expected.push(word_count);
         }
 
-        for w in word_count_two() {
-            let word_meta = WordMeta { word: w.to_string(), count: 2 };
-            expected.push(word_meta);
+        for word in word_count_two() {
+            let word_count = WordCount { word: word.to_string(), count: 2 };
+            expected.push(word_count);
         }
 
-        for w in word_count_one() {
-            let word_meta = WordMeta { word: w.to_string(), count: 1 };
-            expected.push(word_meta);
+        for word in word_count_one() {
+            let word_count = WordCount { word: word.to_string(), count: 1 };
+            expected.push(word_count);
         }
 
-        assert_eq!(expected, words.words);
+        assert_eq!(expected, corpus.words);
     }
 
     #[test]
     fn find_most_common_words_test() {
-        let word_table = HashMap::new();
-
-        let words: Vec<WordMeta> = Vec::new();
-        let mut words = Words { words };
-
-        let word_table = build_word_table(quote(), word_table);
-        let mut words = Words::new(word_table);
+        let mut corpus = Corpus::new(quote());
 
         let mut most_common_words: Vec<String> = Vec::new();
-        words.find_most_common_words(1, &mut most_common_words);
+        corpus.find_most_common_words(1, &mut most_common_words);
         assert_eq!(vec!["to"], most_common_words);
 
         let mut most_common_words: Vec<String> = Vec::new();
-        words.find_most_common_words(2, &mut most_common_words);
+        corpus.find_most_common_words(2, &mut most_common_words);
         assert_eq!(vec!["to", "you"], most_common_words);
 
         let mut most_common_words: Vec<String> = Vec::new();
-        words.find_most_common_words(3, &mut most_common_words);
+        corpus.find_most_common_words(3, &mut most_common_words);
         assert_eq!(vec!["to","you","a"], most_common_words);
     }
 }
