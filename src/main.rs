@@ -4,84 +4,13 @@
 // common words in the file (and the number of
 // their occurrences) in decreasing frequency.
 
-use std::collections::HashMap;
+pub mod corpus;
+pub mod word_count;
 
-use core::cmp::Ordering;
-use std::cmp::Reverse;
+use crate::corpus::Corpus;
 
 use std::env;
 use std::fs;
-
-#[derive(Debug, Eq, PartialEq, Ord)]
-struct WordCount {
-    word: String,
-    count: u32,
-}
-
-struct Corpus {
-    words: Vec<WordCount>
-}
-
-impl WordCount {
-    fn increment_counter(&mut self) {
-        self.count += 1;
-    }
-}
-
-impl Corpus {
-    fn build_table(table: &mut HashMap<String, WordCount>, words: String) {
-        for w in words.split_whitespace() {
-            let current: String = w
-                .replace(|c: char| !c.is_ascii_alphabetic(), "")
-                .to_lowercase();
-
-            let word_meta = WordCount {
-                word: current.clone(),
-                count: 0
-            };
-
-            let entry = table.entry(current).or_insert(word_meta);
-            entry.increment_counter();
-        }
-
-        table.retain(|k, _| k != "");
-    }
-
-    fn new(words: String) -> Self {
-        let mut table = HashMap::new();
-        Self::build_table(&mut table, words);
-        let mut words: Vec<WordCount> = table.into_values().collect();
-        Self { words }
-    }
-
-    fn sort(&mut self) {
-        self.words
-            .sort_unstable_by_key(
-                |item| (Reverse(item.count), item.word.clone())
-            )
-    }
-
-    fn find_most_common_words(
-        &mut self,
-        k: usize,
-        most_common_words: &mut Vec<String>) {
-        self.sort();
-
-        for i in 0..k {
-            let w = self.words[i].word.clone();
-            most_common_words.push(w);
-        }
-    }
-}
-
-impl PartialOrd for WordCount {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        if self.count == other.count {
-            return Some(self.word.cmp(&other.word));
-        }
-        Some(self.count.cmp(&other.count))
-    }
-}
 
 fn main() {
     let args: Vec<String> = env::args().collect();
