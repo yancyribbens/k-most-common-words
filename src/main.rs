@@ -9,6 +9,9 @@ use std::collections::HashMap;
 use core::cmp::Ordering;
 use std::cmp::Reverse;
 
+use std::env;
+use std::fs;
+
 #[derive(Debug, Eq, PartialEq, Ord)]
 struct WordCount {
     word: String,
@@ -81,7 +84,21 @@ impl PartialOrd for WordCount {
 }
 
 fn main() {
-    // find_most_common_words
+    let args: Vec<String> = env::args().collect();
+
+    let file_arg = &args[1];
+    let k_arg = &args[2];
+    let k = k_arg.parse::<usize>().unwrap();
+
+    let contents = fs::read_to_string(file_arg)
+        .expect("Something went wrong reading the file");
+
+    let mut corpus = Corpus::new(contents);
+
+    let mut most_common_words: Vec<String> = Vec::new();
+    corpus.find_most_common_words(k, &mut most_common_words);
+
+    println!("{:?}", most_common_words);
 }
 
 #[cfg(test)]
