@@ -15,7 +15,7 @@ use std::fs;
 #[derive(Debug, Eq, PartialEq, Ord)]
 struct WordCount {
     word: String,
-    count: u8,
+    count: u32,
 }
 
 struct Corpus {
