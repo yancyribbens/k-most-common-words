@@ -1,5 +1,5 @@
 [package]
-name = "programming-perls"
+name = "k-most-common-words"
 version = "0.1.0"
 edition = "2021"
 
